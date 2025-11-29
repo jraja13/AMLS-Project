@@ -3,7 +3,8 @@
 
 import numpy as np
 from sklearn import svm
-
+import time
+from memory_profiler import memory_usage
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -91,16 +92,16 @@ def model_1(data, SVM_parameters):
     ])
     
     clf.fit(train_hog, train_labels)
-    
+    t2 = time.time()
     # Predict
     y_pred = clf.predict(test_hog)
+    t3 = time.time()
     
     # Accuracy
     accuracy = accuracy_score(test_labels, y_pred)
     precision = precision_score(test_labels, y_pred)
     recall = recall_score(test_labels, y_pred)
     f1 = f1_score(test_labels, y_pred)
-    cm = confusion_matrix(test_labels, y_pred)
     
     # Return metrics as a dictionary
     return {
@@ -108,6 +109,7 @@ def model_1(data, SVM_parameters):
         "precision": precision,
         "recall": recall,
         "f1_score": f1,
-        "confusion_matrix": cm
+        "training_time": t2,
+        "prediction_time": t3 - t2
     }
 
