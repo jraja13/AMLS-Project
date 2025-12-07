@@ -35,6 +35,7 @@ def best_parameters(data):
             coef0 = 0.0
 
         model = Pipeline([
+            ("scaler", StandardScaler()),
             ("svm", svm.SVC(
                 C=C,
                 kernel=kernel,
@@ -77,6 +78,7 @@ def model_1(data, SVM_parameters):
 
     # Build model with best params found from validation
     clf = Pipeline([
+        ("scaler", StandardScaler()),
         ("svm", svm.SVC(
             C=SVM_parameters["svm__C"],
             kernel=SVM_parameters["svm__kernel"],
