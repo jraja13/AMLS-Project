@@ -17,7 +17,7 @@ def run_model_1():
     mem_usage, metrics = memory_usage(run, retval=True)
     peak_memory = max(mem_usage) - min(mem_usage)
 
-    print(f"+ HOG Features:")
+    print(f"+ LBP Features:")
     print(f"Accuracy: {metrics['accuracy']*100:.2f}%")
     print(f"Precision: {metrics['precision']*100:.2f}%")
     print(f"Recall: {metrics['recall']*100:.2f}%")
