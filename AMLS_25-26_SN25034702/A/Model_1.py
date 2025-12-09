@@ -7,46 +7,19 @@ from sklearn.pipeline import Pipeline
 from itertools import product
 from skimage.feature import hog
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from skimage.feature import local_binary_pattern
-
-#LBP Feature Extraction
-def extract_lbp_features(images, P=8, R=1, method='uniform'):
-    features = []
-    for img in images:
-        if img.ndim == 3 and img.shape[-1] == 1:
-            img = img.squeeze()
-
-        # Compute LBP image
-        lbp = local_binary_pattern(img, P=P, R=R, method=method)
-
-        # Convert to histogram (common approach for LBP)
-        (hist, _) = np.histogram(
-            lbp.ravel(),
-            bins=np.arange(0, P + 3),   # P + 2 bins for uniform patterns
-            range=(0, P + 2)
-        )
-
-        # Normalize histogram
-        hist = hist.astype("float")
-        hist /= (hist.sum() + 1e-6)
-
-        features.append(hist)
-
-    return np.array(features)
-
+from sklearn.decomposition import PCA  
 
 # Hyperparameter Tuning
-def best_parameters(data, use_hog=True, combine_raw=False):
+def best_parameters(data):  
     # Prepare data
     X_train_flat = data['train_images'].reshape((data['train_images'].shape[0], -1))
     X_val_flat   = data['val_images'].reshape((data['val_images'].shape[0], -1))
     y_train = data['train_labels'].flatten()
     y_val   = data['val_labels'].flatten()
 
-    # Extract LBP features
-    X_train = extract_lbp_features(data['train_images'], P=8, R=1)
-    X_val   = extract_lbp_features(data['val_images'], P=8, R=1)
-
+    pca = PCA(n_components=0.90, random_state=42, svd_solver='full', whiten=True)   
+    X_train = pca.fit_transform(X_train_flat)
+    X_val = pca.transform(X_val_flat)
 
     # Parameter grid
     C_vals = [1, 10, 50, 100]
@@ -66,6 +39,7 @@ def best_parameters(data, use_hog=True, combine_raw=False):
 
         model = Pipeline([
             ("scaler", StandardScaler()),
+            ("pca", pca),
             ("svm", svm.SVC(
                 C=C,
                 kernel=kernel,
@@ -93,21 +67,17 @@ def best_parameters(data, use_hog=True, combine_raw=False):
     print("Validation Accuracy:", best_acc)
     return best_params
 
-# Training and Evaluation
-def model_1(data, SVM_parameters, use_hog=True, combine_raw=False):
-    # Prepare data
+# Train & Evaluate Model
+def model_1(data, SVM_parameters):  
+    # Prepare train/test
     X_train_flat = data['train_images'].reshape((data['train_images'].shape[0], -1))
-    X_val_flat   = data['val_images'].reshape((data['val_images'].shape[0], -1))
+    X_test_flat  = data['test_images'].reshape((data['test_images'].shape[0], -1))
     y_train = data['train_labels'].flatten()
-    y_val   = data['val_labels'].flatten()
+    y_test  = data['test_labels'].flatten()
 
-    # Extract LBP features
-    X_train = extract_lbp_features(data['train_images'], P=8, R=1)
-    X_val   = extract_lbp_features(data['val_images'], P=8, R=1)
-
-    X_test = data['test_images'].reshape((data['test_images'].shape[0], -1))
-    y_test = data['test_labels'].flatten()
-    X_test = extract_lbp_features(data['test_images'], P=8, R=1)
+    pca = PCA(n_components=0.90, random_state=42, svd_solver='full', whiten=True)
+    X_train = pca.fit_transform(X_train_flat)
+    X_test = pca.transform(X_test_flat)
 
     # Build SVM with best parameters
     clf = Pipeline([
