@@ -1,90 +1,63 @@
-# build a neural network model with pytorch to classify breast cancer images
-# this file will be imported in main.py
 import numpy as np
+import matplotlib.pyplot as plt
 import time
+from memory_profiler import memory_usage
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-from torchvision import models
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
+def model_2(images, epochs=100):
 
-def model_2(data, device='cuda' if torch.cuda.is_available() else 'cpu'):
-    X_train = torch.tensor(data['X_train'], dtype=torch.float32)
-    y_train = torch.tensor(data['y_train'])
-    X_val = torch.tensor(data['X_val'], dtype=torch.float32)
-    y_val = torch.tensor(data['y_val'])
+    X_train, y_train = images['X_train'], images['y_train']
+    X_val, y_val     = images['X_val'], images['y_val']
+    X_test, y_test   = images['X_test'], images['y_test']
 
-    # FIX LABELS: handle (N,1), (N,2), floats, etc.
-    if y_train.ndim > 1 and y_train.shape[1] > 1:
-        # one-hot → integer
-        y_train = torch.argmax(y_train, dim=1)
-        y_val = torch.argmax(y_val, dim=1)
+    # Combine train + val
+    X_combined = np.concatenate([X_train, X_val], axis=0)
+    y_combined = np.concatenate([y_train, y_val], axis=0)
 
-    y_train = y_train.view(-1).long()
-    y_val = y_val.view(-1).long()
+    # Reshape for CNN
+    X_combined = X_combined.reshape(-1, 28, 28, 1).astype('float32') / 255.0
+    X_test     = X_test.reshape(-1, 28, 28, 1).astype('float32') / 255.0
 
-    # Normalize
-    X_train = X_train / 255.0
-    X_val = X_val / 255.0
+    num_classes = len(np.unique(y_combined))
 
-    # Add channel dimension if needed
-    if X_train.ndim == 3:
-        X_train = X_train.unsqueeze(1)
-        X_val = X_val.unsqueeze(1)
+    model = Sequential([
+        Conv2D(32, (3,3), activation='relu', input_shape=X_combined.shape[1:]),
+        MaxPooling2D((2,2)),
+        Conv2D(64, (3,3), activation='relu'),
+        MaxPooling2D((2,2)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dropout(0.5),
+        Dense(num_classes, activation='softmax')
+    ])
 
-    train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=32, shuffle=True)
-    val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=32, shuffle=False)
-
-
-    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
-
-    # Adjust for grayscale
-    if X_train.shape[1] == 1:
-        model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-
-    model.fc = nn.Linear(model.fc.in_features, 2)
-    model = model.to(device)
-
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     start_time = time.time()
-    epochs = 5
-    for epoch in range(epochs):
-        model.train()
-        for images, labels in train_loader:
-            images, labels = images.to(device), labels.to(device)
-
-            optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+    history = model.fit(X_combined, y_combined, epochs=epochs, batch_size=32, verbose=2)
     training_time = time.time() - start_time
 
-    model.eval()
-    all_preds, all_labels = [], []
-    pred_start_time = time.time()
-
-    with torch.no_grad():
-        for images, labels in val_loader:
-            images, labels = images.to(device), labels.to(device)
-            outputs = model(images)
-            _, preds = torch.max(outputs, 1)
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(labels.cpu().numpy())
-
-    prediction_time = time.time() - pred_start_time
+    start_pred_time = time.time()
+    y_pred = np.argmax(model.predict(X_test), axis=1)
+    prediction_time = time.time() - start_pred_time
 
     metrics = {
-        'accuracy': accuracy_score(all_labels, all_preds),
-        'precision': precision_score(all_labels, all_preds, average='weighted'),
-        'recall': recall_score(all_labels, all_preds, average='weighted'),
-        'f1_score': f1_score(all_labels, all_preds, average='weighted'),
+        'accuracy': accuracy_score(y_test, y_pred),
+        'precision': precision_score(y_test, y_pred, average='macro'),
+        'recall': recall_score(y_test, y_pred, average='macro'),
+        'f1_score': f1_score(y_test, y_pred, average='macro'),
         'training_time': training_time,
         'prediction_time': prediction_time
     }
+
+    plt.figure(figsize=(8,5))
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.title('Baseline Model Training Loss (Train + Val)')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
 
     return metrics

@@ -17,7 +17,7 @@ def run_model_1():
     mem_usage, metrics = memory_usage(run, retval=True)
     peak_memory = max(mem_usage) - min(mem_usage)
 
-    print(f"+ PCA Features:")
+    print(f"SVM + PCA Model")
     print(f"Accuracy: {metrics['accuracy']*100:.2f}%")
     print(f"Precision: {metrics['precision']*100:.2f}%")
     print(f"Recall: {metrics['recall']*100:.2f}%")
@@ -30,16 +30,19 @@ def run_model_1():
 def run_model_2():
 
     train_images = np.load('Datasets/breastmnist.npz')['train_images']
-    #create a dictionary wiyth keys X_train, y_train, X_val, y_val
     train_labels = np.load('Datasets/breastmnist.npz')['train_labels']
+    val_images = np.load('Datasets/breastmnist.npz')['val_images']
+    val_labels = np.load('Datasets/breastmnist.npz')['val_labels']
     test_images = np.load('Datasets/breastmnist.npz')['test_images']
     test_labels = np.load('Datasets/breastmnist.npz')['test_labels']
     
     images = {
         'X_train': train_images,
         'y_train': train_labels,
-        'X_val': test_images,
-        'y_val': test_labels
+        'X_val': val_images,
+        'y_val': val_labels,
+        'X_test': test_images,
+        'y_test': test_labels
     }
 
     def run():
@@ -48,7 +51,7 @@ def run_model_2():
     mem_usage, metrics = memory_usage(run, retval=True)
     peak_memory = max(mem_usage) - min(mem_usage)
 
-    print(f"Model Neural Network:")
+    print(f"Baseline CNN:")
     print(f"Accuracy: {metrics['accuracy']*100:.2f}%")
     print(f"Precision: {metrics['precision']*100:.2f}%")
     print(f"Recall: {metrics['recall']*100:.2f}%")
@@ -58,5 +61,5 @@ def run_model_2():
     print(f"Peak Memory Usage: {peak_memory:.2f} MB")
 
 if __name__ == "__main__":
-    run_model_1()
-    # run_model_2()
+    # run_model_1()
+    run_model_2()
