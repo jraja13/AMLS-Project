@@ -2,6 +2,7 @@ import numpy as np
 import time
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dropout
+from tensorflow.keras import regularizers
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
@@ -16,13 +17,15 @@ def model_2(images):
     num_classes = len(np.unique(y_train))
 
     model = Sequential([
-        Conv2D(32, (3,3), activation='relu', input_shape=X_train.shape[1:]),
+        Conv2D(32, (3,3), activation='relu', input_shape=X_train.shape[1:],
+               kernel_regularizer=regularizers.l2(0.0001)),
         MaxPooling2D((2,2)),
-        Conv2D(64, (3,3), activation='relu'),
+        Conv2D(64, (3,3), activation='relu',
+               kernel_regularizer=regularizers.l2(0.0001)),
         MaxPooling2D((2,2)),
         Flatten(),
-        Dense(128, activation='relu'),
-        Dropout(0.5),
+        Dense(128, activation='relu', kernel_regularizer=regularizers.l2(0.0001)),
+        Dropout(0.5),   
         Dense(num_classes, activation='softmax')
     ])
 
