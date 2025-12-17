@@ -1,6 +1,7 @@
 import numpy as np
 import time
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
@@ -21,6 +22,7 @@ def model_2(images):
         MaxPooling2D((2,2)),
         Flatten(),
         Dense(128, activation='relu'),
+        Dropout(0.5),
         Dense(num_classes, activation='softmax')
     ])
 
