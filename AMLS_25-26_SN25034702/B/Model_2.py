@@ -31,7 +31,7 @@ def model_2(images):
         Dense(1, activation='sigmoid')
     ])
 
-    model.compile(optimizer='RMSprop', loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     #Find the best epoch using early stopping but run full 100 epochs to plot
     patience = 5
@@ -89,7 +89,7 @@ def model_2(images):
         Dense(1, activation='sigmoid')
     ])
 
-    final_model.compile(optimizer='RMSprop', loss='binary_crossentropy', metrics=['accuracy'])
+    final_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     X_train = np.concatenate((X_train, X_val), axis=0)
     y_train = np.concatenate((y_train, y_val), axis=0)
