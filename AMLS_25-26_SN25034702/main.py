@@ -9,11 +9,13 @@ from B.Model_2 import model_2
 def run_model_1():
     data = np.load('Datasets/breastmnist.npz')
     start_time = time.time()
-    best_params = best_parameters(data)
+    
+    # Find best hyperparameters using grid search
+    best_params = best_parameters(data) 
+    
     param_time = time.time() - start_time
     def run():
         return model_1(data, best_params)
-    # run model ONCE and capture both memory + metrics
     mem_usage, metrics = memory_usage(run, retval=True)
     peak_memory = max(mem_usage) - min(mem_usage)
 
@@ -28,7 +30,6 @@ def run_model_1():
     print(f"Peak Memory Usage: {peak_memory:.2f} MB")
     
 def run_model_2():
-
     train_images = np.load('Datasets/breastmnist.npz')['train_images']
     train_labels = np.load('Datasets/breastmnist.npz')['train_labels']
     val_images = np.load('Datasets/breastmnist.npz')['val_images']
@@ -47,11 +48,10 @@ def run_model_2():
 
     def run():
         return model_2(images)
-    # run model ONCE and capture both memory + metrics
     mem_usage, metrics = memory_usage(run, retval=True)
     peak_memory = max(mem_usage) - min(mem_usage)
 
-    print(f"Baseline CNN:")
+    print(f"Final CNN:")
     print(f"Accuracy: {metrics['accuracy']*100:.2f}%")
     print(f"Precision: {metrics['precision']*100:.2f}%")
     print(f"Recall: {metrics['recall']*100:.2f}%")
@@ -61,5 +61,5 @@ def run_model_2():
     print(f"Peak Memory Usage: {peak_memory:.2f} MB")
 
 if __name__ == "__main__":
-    # run_model_1()
+    run_model_1()
     run_model_2()

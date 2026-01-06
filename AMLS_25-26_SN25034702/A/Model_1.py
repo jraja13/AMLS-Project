@@ -5,8 +5,6 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from itertools import product
-from skimage.feature import hog
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.decomposition import PCA  
 
 # Hyperparameter Tuning
@@ -39,7 +37,7 @@ def best_parameters(data):
 
         model = Pipeline([
             ("scaler", StandardScaler()),
-            ("pca", pca),
+            ("pca", pca),   
             ("svm", svm.SVC(
                 C=C,
                 kernel=kernel,
