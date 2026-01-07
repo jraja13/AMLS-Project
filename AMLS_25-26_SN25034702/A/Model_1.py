@@ -10,10 +10,10 @@ from sklearn.decomposition import PCA
 # Hyperparameter Tuning
 def best_parameters(data):  
     # Prepare data
-    X_train_flat = data['train_images'].reshape((data['train_images'].shape[0], -1))
-    X_val_flat   = data['val_images'].reshape((data['val_images'].shape[0], -1))
-    y_train = data['train_labels'].flatten()
-    y_val   = data['val_labels'].flatten()
+    X_train_flat = data['X_train'].reshape((data['X_train'].shape[0], -1))
+    X_val_flat   = data['X_val'].reshape((data['X_val'].shape[0], -1))
+    y_train = data['y_train'].flatten()
+    y_val   = data['y_val'].flatten()
 
     pca = PCA(n_components=0.90, random_state=42, svd_solver='full', whiten=True)   
     X_train = pca.fit_transform(X_train_flat)
@@ -68,10 +68,10 @@ def best_parameters(data):
 # Train & Evaluate Model
 def model_1(data, SVM_parameters):  
     # Prepare train/test
-    X_train_flat = data['train_images'].reshape((data['train_images'].shape[0], -1))
-    X_test_flat  = data['test_images'].reshape((data['test_images'].shape[0], -1))
-    y_train = data['train_labels'].flatten()
-    y_test  = data['test_labels'].flatten()
+    X_train_flat = data['X_train'].reshape((data['X_train'].shape[0], -1))
+    X_test_flat  = data['X_test'].reshape((data['X_test'].shape[0], -1))
+    y_train = data['y_train'].flatten()
+    y_test  = data['y_test'].flatten()
 
     pca = PCA(n_components=0.90, random_state=42, svd_solver='full', whiten=True)
     X_train = pca.fit_transform(X_train_flat)
