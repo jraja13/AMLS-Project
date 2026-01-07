@@ -3,7 +3,7 @@ from memory_profiler import memory_usage
 import time
 from PIL import Image
 from A.Model_1 import best_parameters, model_1
-from B.Model_2 import model_2
+from B.Model_2 import find_best_epochs, model_2
 
 
 def run_model_1():
@@ -46,8 +46,9 @@ def run_model_2():
         'y_test': test_labels
     }
 
+    bestepoch = find_best_epochs(images)
     def run():
-        return model_2(images)
+        return model_2(images, bestepoch)
     mem_usage, metrics = memory_usage(run, retval=True)
     peak_memory = max(mem_usage) - min(mem_usage)
 
