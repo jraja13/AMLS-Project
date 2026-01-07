@@ -7,7 +7,7 @@ from tensorflow.keras.layers import BatchNormalization
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 
-def model_2(images):
+def find_best_epochs(images):
     X_train, y_train = images['X_train'], images['y_train']
     X_val, y_val     = images['X_val'], images['y_val']
     X_test, y_test   = images['X_test'], images['y_test']
@@ -74,6 +74,17 @@ def model_2(images):
     plt.legend()
     plt.savefig("B/early_stopping_curve.png", dpi=300, bbox_inches='tight')
     plt.close()
+
+    return best_epoch
+
+def model_2(images, best_epoch):
+    X_train, y_train = images['X_train'], images['y_train']
+    X_val, y_val     = images['X_val'], images['y_val']
+    X_test, y_test   = images['X_test'], images['y_test']
+
+    X_train = X_train.reshape(-1,28,28,1).astype('float32') / 255.0
+    X_val   = X_val.reshape(-1,28,28,1).astype('float32') / 255.0
+    X_test  = X_test.reshape(-1,28,28,1).astype('float32') / 255.0
 
     # Rebuild model and train on train data for exactly best_epoch
     final_model = Sequential([
