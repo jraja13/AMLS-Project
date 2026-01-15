@@ -14,14 +14,14 @@ This is the folder structure used in this project.
     main.py
     README.txt
 
-main.py - contains the main script which triggers codes of both the models.
+main.py - contains the main script which triggers codes of both the models and evaluates them.
 A - contains the code for model 1 (SVM)
 B - contains the code for model 2 (CNN)
 Datasets - contains the dataset in .npz format. (BreastMNIST images)
 README.txt - info file
 
 For the CNN, I have added a chart which shows the point for early stopping, along with both 
-the curves of training loss and validation loss. I will be saved inside the folder 'B'.
+the curves of training loss and validation loss. It will be saved inside the folder 'B'.
 
 The performance of the final models can be viewed in the terminal as I have printed them.
 
@@ -32,4 +32,4 @@ The packages required for my code to run smoothly are:
 - scikit-learn
 - matplotlib
 - pillow
-- memory-profiler (optional, for memory tracking)
+- memory-profiler 
